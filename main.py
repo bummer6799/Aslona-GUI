@@ -1,8 +1,17 @@
-import sys
+import sys, os
 import pyautogui
 import pygetwindow as gw
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt6.QtGui import QIcon
+
+basedir = os.path.dirname(__file__)
+
+try:
+    from ctypes import windll  # Only exists on Windows.
+    myappid = 'mycompany.myproduct.subproduct.version'
+    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except ImportError:
+    pass
 
 class Window(QWidget):
     def __init__(self):
@@ -12,7 +21,7 @@ class Window(QWidget):
         self.setGeometry(100, 100, 400, 80)
 
         # Set window icon
-        self.setWindowIcon(QIcon('icon.ico'))
+        self.setWindowIcon(QIcon(os.path.join(basedir,'icon.ico')))
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
@@ -80,8 +89,7 @@ class Window(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
+    app.setWindowIcon(QIcon('icon.ico'))  # Set the application icon
     window = Window()
     window.show()
-
     sys.exit(app.exec())
