@@ -1,12 +1,15 @@
 import sys
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy
+import pyautogui
+import pygetwindow as gw
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt6.QtGui import QIcon
 
 class Window(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('Aslona GUI')
+        self.setWindowTitle('Aslona GUI (Unofficial)')
+        self.setGeometry(100, 100, 400, 80)
 
         # Set window icon
         self.setWindowIcon(QIcon('icon.ico'))
@@ -22,6 +25,7 @@ class Window(QWidget):
         for i in "1234567890":
             button = QPushButton(i)
             button.setFixedSize(40, 40)  # Makes the buttons compact squares
+            button.clicked.connect(self.button_clicked)  # Connect button click to handler
             button_layout.addWidget(button)
 
         main_layout.addLayout(button_layout)
@@ -30,13 +34,16 @@ class Window(QWidget):
         bottom_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
         bottom_layout.setSpacing(0)  # Remove spacing
 
-        enter_button = QPushButton('Enter')
-        enter_button.setFixedSize(200, 40)  # Fixed size to match button height
         backspace_button = QPushButton('Backspace')
         backspace_button.setFixedSize(200, 40)  # Fixed size to match button height
+        backspace_button.clicked.connect(self.backspace_clicked)
 
-        bottom_layout.addWidget(enter_button)
+        enter_button = QPushButton('Enter')
+        enter_button.setFixedSize(200, 40)  # Fixed size to match button height
+        enter_button.clicked.connect(self.enter_clicked)
+
         bottom_layout.addWidget(backspace_button)
+        bottom_layout.addWidget(enter_button)
 
         main_layout.addLayout(bottom_layout)
 
@@ -44,6 +51,32 @@ class Window(QWidget):
 
         # Set the fixed size to fit all buttons perfectly
         self.setFixedSize(400, 80)
+
+    def focus_target_window(self):
+        self.current_window = gw.getActiveWindow().title
+        target_window = gw.getWindowsWithTitle('Warsim')[0]
+        if target_window:
+            target_window.activate()
+
+    def return_to_gui(self):
+        if self.current_window:
+            gw.getWindowsWithTitle(self.current_window)[0].activate()
+
+    def button_clicked(self):
+        self.focus_target_window()
+        button = self.sender()
+        pyautogui.write(button.text())
+        self.return_to_gui()
+
+    def enter_clicked(self):
+        self.focus_target_window()
+        pyautogui.press('enter')
+        self.return_to_gui()
+
+    def backspace_clicked(self):
+        self.focus_target_window()
+        pyautogui.press('backspace')
+        self.return_to_gui()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
